@@ -1,0 +1,75 @@
+version: '3.8'
+
+volumes:
+  n8n_storage:
+  postgres_storage:
+  ollama_storage:
+  qdrant_storage:
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=n8n
+      - POSTGRES_PASSWORD=n8n
+      - POSTGRES_DB=n8n
+    volumes:
+      - postgres_storage:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h localhost -U n8n -d n8n']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  n8n:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - 5678:5678
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_USER=n8n
+      - DB_POSTGRESDB_PASSWORD=n8n
+      - DB_POSTGRESDB_DATABASE=n8n
+      - EXECUTIONS_PROCESS=main
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_ALLOW_EXEC=true
+      - NODES_EXCLUDE=[]
+      - N8N_USER_FOLDER=/home/node/.n8n/data
+      - N8N_CUSTOM_EXTENSIONS=/usr/local/lib/node_modules/n8n-nodes-twincat-ads
+    volumes:
+      - n8n_storage:/home/node/.n8n/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    user: root                          # ← ADD THIS
+    entrypoint: >
+      sh -c "
+        mkdir -p /home/node/.n8n/data/.n8n &&
+        chown -R node:node /home/node/.n8n/data &&
+        su node -s /bin/sh -c 'n8n'
+      "
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - 11434:11434
+    volumes:
+      - ollama_storage:/root/.ollama
+
+  qdrant:
+    image: qdrant/qdrant
+    container_name: qdrant
+    restart: unless-stopped
+    ports:
+      - 6333:6333
+    volumes:
+      - qdrant_storage:/qdrant/storage
