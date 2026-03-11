@@ -63,3 +63,32 @@ N8N_CUSTOM_EXTENSIONS="~/.n8n/node_modules/n8n-nodes-twincat-ads" n8n start
 ```
 
 The **TwinCAT ADS** node will now appear in the node palette under the "transform" group.
+
+---
+
+## Ollama setup (Docker only)
+
+### Downloading a model
+
+Once the containers are running, you need to pull a model into Ollama before it can be used. Exec into the Ollama container and run `ollama pull`:
+
+```shell
+docker exec -it ollama sh
+ollama pull llama3
+exit
+```
+Replace `llama3` with whichever model you want (e.g. `mistral`, `phi3`, `gemma2`). You can browse available models at [ollama.com/library](https://ollama.com/library).
+
+> **Note:** Model downloads can be several gigabytes. Make sure you have enough disk space before pulling.
+
+### Adding Ollama credentials in n8n
+
+1. Open n8n at `http://localhost:5678`
+2. Go to **Settings → Credentials → Add Credential**
+3. Search for **Ollama** and select it
+4. Set the **Base URL** to:
+   ```
+   http://ollama:11434
+   ```
+   > Use `ollama` (the container name) not `localhost` — containers communicate over the internal Docker network, not the host network.
+5. Click **Save** and test the connection
