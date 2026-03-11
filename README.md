@@ -1,6 +1,10 @@
 # Custom TwinCAT node for n8n (Example)
-This repo will be a demo of a how to integrate TwinCAT into n8n. As n8n nodes are written in JavaScript or typescript, this will need to have ads-client for nodeJS.
+**This repo is not officially Beckhoff**. If you do need further help with TwinCAT, please contact your local Beckhoff Subsidiary/Representatives.  
+This repo will be a demo of a how to integrate TwinCAT into n8n. As n8n nodes are written in JavaScript or typescript, this will need to have ads-client for nodeJS. The Node.js ADS library can be found in this [repo](https://github.com/jisotalo/ads-client).
 
+![](./n8n-nodes-twincat-ads/icons/workspace.png)
+
+## First step: git clone the project
 ```shell
 git clone https://github.com/sebastienlindqvist/TwinCAT-n8n-Example.git
 cd TwinCAT-n8n-Example/n8n-nodes-twincat-ads
